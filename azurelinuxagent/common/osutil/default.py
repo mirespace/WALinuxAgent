@@ -64,8 +64,14 @@ except ImportError:
         except ImportError:
             pass
     if not __CRYPT_IMPORTED__:
+        try:
+            from azurelinuxagent.fallbacks.crypt import crypt  # type: ignore[assignment]
+            __CRYPT_IMPORTED__ = True
+        except Exception:  # pylint: disable=broad-except
+            pass
+    if not __CRYPT_IMPORTED__:
         def crypt(password, salt):
-            raise OSUtilError("This feature requires one of the 'crypt', 'legacycrypt' or 'crypt-r' Python packages to be installed.")
+            raise OSUtilError("This feature requires the 'crypt' or 'legacycrypt' Python package, or libcrypt from the system, to be available.")
 
 from azurelinuxagent.common import conf
 from azurelinuxagent.common import logger

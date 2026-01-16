@@ -2180,6 +2180,15 @@ class ExtHandlerInstance(object):
 
                     # Add the os environment variables before executing command
                     env.update(os.environ)
+
+                    fallback_python_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fallbacks")
+                    fallback_module = os.path.join(fallback_python_dir, "crypt.py")
+                    if os.path.isfile(fallback_module):
+                        existing_pythonpath = env.get("PYTHONPATH")
+                        path_entries = [] if not existing_pythonpath else [p for p in existing_pythonpath.split(os.pathsep) if p]
+                        if fallback_python_dir not in path_entries:
+                            path_entries.insert(0, fallback_python_dir)
+                            env["PYTHONPATH"] = os.pathsep.join(path_entries)
                     process_output = CGroupConfigurator.get_instance().start_extension_command(
                         extension_name=self.get_full_name(extension),
                         command=command_full_path,
